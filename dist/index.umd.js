@@ -14,9 +14,17 @@
       addOptions() {
           return {
               HTMLAttributes: {},
-              renderLabel({ options, node }) {
+              renderText({ options, node }) {
                   var _a;
                   return `${options.suggestion.char}${(_a = node.attrs.label) !== null && _a !== void 0 ? _a : node.attrs.id}`;
+              },
+              renderHTML({ options, node }) {
+                  var _a;
+                  return [
+                      'span',
+                      this.HTMLAttributes,
+                      `${options.suggestion.char}${(_a = node.attrs.label) !== null && _a !== void 0 ? _a : node.attrs.id}`
+                  ];
               },
               suggestion: {
                   char: '@',
@@ -98,14 +106,14 @@
           return [
               'span',
               core.mergeAttributes({ 'data-type': this.name }, this.options.HTMLAttributes, HTMLAttributes),
-              this.options.renderLabel({
+              this.options.renderHTML({
                   options: this.options,
                   node,
               }),
           ];
       },
       renderText({ node }) {
-          return this.options.renderLabel({
+          return this.options.renderText({
               options: this.options,
               node,
           });

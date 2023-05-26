@@ -1,11 +1,12 @@
 import { mergeAttributes, Node } from '@tiptap/core'
-import { Node as ProseMirrorNode } from '@tiptap/pm/model'
+import { DOMOutputSpec, Node as ProseMirrorNode } from '@tiptap/pm/model'
 import { PluginKey } from '@tiptap/pm/state'
 import Suggestion, { SuggestionOptions } from '@tiptap/suggestion'
 
 export type MentionOptions = {
   HTMLAttributes: Record<string, any>
-  renderLabel: (props: { options: MentionOptions; node: ProseMirrorNode }) => string
+  renderText: (props: { options: MentionOptions; node: ProseMirrorNode }) => string
+  renderHTML: (props: { options: MentionOptions; node: ProseMirrorNode }) => DOMOutputSpec
   suggestion: Omit<SuggestionOptions, 'editor'>
 }
 
@@ -17,8 +18,15 @@ export const Mention = Node.create<MentionOptions>({
   addOptions() {
     return {
       HTMLAttributes: {},
-      renderLabel({ options, node }) {
+      renderText({ options, node }) {
         return `${options.suggestion.char}${node.attrs.label ?? node.attrs.id}`
+      },
+      renderHTML({ options, node }) {
+        return [
+          'span',
+          this.HTMLAttributes,
+          `${options.suggestion.char}${node.attrs.label ?? node.attrs.id}`
+        ]
       },
       suggestion: {
         char: '@',
@@ -113,7 +121,7 @@ export const Mention = Node.create<MentionOptions>({
     return [
       'span',
       mergeAttributes({ 'data-type': this.name }, this.options.HTMLAttributes, HTMLAttributes),
-      this.options.renderLabel({
+      this.options.renderHTML({
         options: this.options,
         node,
       }),
@@ -121,7 +129,7 @@ export const Mention = Node.create<MentionOptions>({
   },
 
   renderText({ node }) {
-    return this.options.renderLabel({
+    return this.options.renderText({
       options: this.options,
       node,
     })
